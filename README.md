@@ -4,6 +4,19 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 1.3.0 — 2026-04-05
+- Refactored `useQuiz` from 6 `useState` calls to `useReducer` — state transitions are now atomic and explicit (`START`, `ANSWER`, `EXPIRE`, `NEXT`, `RESET` actions)
+- Restored React Router — recreated `src/App.jsx`, restored `BrowserRouter` in `main.jsx`
+
+### 1.2.0 — 2026-04-05
+- Fixed `Timer.jsx` — `onExpire` now stored in a ref, eliminating stale closure bug when `timerKey` resets
+- Fixed `QuizApp.jsx` — timer expiry now calls `handleExpireAndAdvance` (reveals correct answer for 1200ms, then advances) instead of skipping straight to next question
+- Fixed `QuizApp.jsx` — OpenTDB fetch now has `.catch()` and validates `data.results`; error shown inline below the picker
+- Fixed `useLeaderboard.js` — channel name is now unique per instance (`crypto.randomUUID()`); removed dead `saveScore` export; added `cancelled` flag to guard against setState after unmount
+- Fixed `useQuiz.js` — removed dead exports: `questions`, `isCorrect`
+- Fixed `CategoryPicker.jsx` — fetch now uses `AbortController`, cancelled on unmount
+- Removed React Router — deleted `src/App.jsx`, `main.jsx` now renders `<QuizApp />` directly; removed `react-router-dom` usage
+
 ### 1.1.0 — 2026-04-05
 - Created `src/components/Leaderboard.jsx` — renders Top 10 table (rank, player, score, category, difficulty, time) using `useLeaderboard`; shows loading/empty/error states
 - Updated `src/pages/QuizApp.jsx` — imports `useLeaderboard` for `saveScore`; renders `<Leaderboard />` on picking and finished screens; fixes timer to start on `'playing'` phase via `useEffect`; removed debug console logs

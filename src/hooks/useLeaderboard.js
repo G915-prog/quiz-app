@@ -5,13 +5,12 @@
  * INSERT events so the list stays live without a manual refresh.
  *
  * Returns:
- *   rows       — array of quiz_scores rows, sorted score DESC / time ASC, max 10
- *   loading    — true while the initial fetch is in flight
- *   error      — error message string, or null
- *   saveScore  — async fn(entry) → { error }; inserts a row into quiz_scores
+ *   rows    — array of quiz_scores rows, sorted score DESC / time ASC, max 10
+ *   loading — true while the initial fetch is in flight
+ *   error   — error message string, or null
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 function sortAndTrim(arr) {
@@ -24,9 +23,11 @@ export function useLeaderboard() {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const channelName = useRef(`quiz_scores_${crypto.randomUUID()}`)
 
   useEffect(() => {
-    // Initial fetch
+    let cancelled = false
+
     supabase
       .from('quiz_scores')
       .select('*')
@@ -34,6 +35,7 @@ export function useLeaderboard() {
       .order('time_taken_seconds', { ascending: true })
       .limit(10)
       .then(({ data, error: fetchError }) => {
+        if (cancelled) return
         if (fetchError) {
           setError(fetchError.message)
         } else {
@@ -42,9 +44,8 @@ export function useLeaderboard() {
         setLoading(false)
       })
 
-    // Real-time subscription
     const channel = supabase
-      .channel('quiz_scores_inserts')
+      .channel(channelName.current)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'quiz_scores' },
@@ -55,22 +56,10 @@ export function useLeaderboard() {
       .subscribe()
 
     return () => {
+      cancelled = true
       supabase.removeChannel(channel)
     }
   }, [])
 
-  async function saveScore(entry) {
-    const { error: insertError } = await supabase.from('quiz_scores').insert({
-      user_id:            entry.userId ?? null,
-      username:           entry.username,
-      score:              entry.score,
-      total_questions:    entry.totalQuestions,
-      category:           entry.category,
-      difficulty:         entry.difficulty,
-      time_taken_seconds: entry.timeTakenSeconds,
-    })
-    return { error: insertError ? insertError.message : null }
-  }
-
-  return { rows, loading, error, saveScore }
+  return { rows, loading, error }
 }

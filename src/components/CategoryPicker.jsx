@@ -8,7 +8,9 @@ function CategoryPicker({ onStart }) {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch('https://opentdb.com/api_category.php')
+    const controller = new AbortController()
+
+    fetch('https://opentdb.com/api_category.php', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch categories')
         return res.json()
@@ -19,9 +21,12 @@ function CategoryPicker({ onStart }) {
         setLoading(false)
       })
       .catch((err) => {
+        if (err.name === 'AbortError') return
         setError(err.message)
         setLoading(false)
       })
+
+    return () => controller.abort()
   }, [])
 
   if (loading) return <p className="picker-status">Loading categories…</p>

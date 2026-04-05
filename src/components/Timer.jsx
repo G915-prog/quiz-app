@@ -5,8 +5,10 @@ const CIRCUMFERENCE = 125.66
 function Timer({ duration = 30, onExpire, timerKey, paused = false }) {
   const [secondsLeft, setSecondsLeft] = useState(duration)
   const pausedRef = useRef(paused)
+  const onExpireRef = useRef(onExpire)
 
   useEffect(() => { pausedRef.current = paused }, [paused])
+  useEffect(() => { onExpireRef.current = onExpire }, [onExpire])
 
   useEffect(() => {
     setSecondsLeft(duration)
@@ -16,7 +18,7 @@ function Timer({ duration = 30, onExpire, timerKey, paused = false }) {
         if (pausedRef.current) return s
         if (s <= 1) {
           clearInterval(interval)
-          onExpire()
+          onExpireRef.current()
           return 0
         }
         return s - 1
@@ -24,7 +26,7 @@ function Timer({ duration = 30, onExpire, timerKey, paused = false }) {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [timerKey])
+  }, [timerKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const dashOffset = CIRCUMFERENCE * (1 - secondsLeft / duration)
 

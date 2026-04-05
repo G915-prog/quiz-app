@@ -38,7 +38,7 @@ function QuizApp() {
   const {
     startQuiz, resetQuiz, phase,
     question, currentIndex, total,
-    selectedAnswer, handleAnswer,
+    selectedAnswer, handleAnswer, handleExpire,
     nextQuestion, timerKey,
     score,
   } = useQuiz()
@@ -49,6 +49,7 @@ function QuizApp() {
   const [category, setCategory] = useState('')
   const [difficulty, setDifficulty] = useState('')
   const [timeTaken, setTimeTaken] = useState(0)
+  const [fetchError, setFetchError] = useState(null)
 
   useEffect(() => {
     if (phase === 'playing') {
@@ -61,20 +62,31 @@ function QuizApp() {
   }, [phase])
 
   function handleStart(categoryId, diff, categoryName) {
+    setFetchError(null)
     fetch(
       `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=${diff}&type=multiple`
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`API error ${res.status}`)
+        return res.json()
+      })
       .then((data) => {
+        if (!data.results?.length) throw new Error('No questions returned. Try a different category.')
         const processed = data.results.map(processQuestion)
         setCategory(categoryName)
         setDifficulty(diff)
         startQuiz(processed)
       })
+      .catch((err) => setFetchError(err.message))
   }
 
   function handleAnswerAndAdvance(key) {
     handleAnswer(key)
+    advanceTimer.current = setTimeout(nextQuestion, 1200)
+  }
+
+  function handleExpireAndAdvance() {
+    handleExpire()
     advanceTimer.current = setTimeout(nextQuestion, 1200)
   }
 
@@ -103,6 +115,7 @@ function QuizApp() {
       {phase === 'picking' && (
         <>
           <CategoryPicker onStart={handleStart} />
+          {fetchError && <p className="picker-status picker-status--error">{fetchError}</p>}
           <Leaderboard />
         </>
       )}
@@ -112,7 +125,7 @@ function QuizApp() {
           <ProgressBar current={currentIndex + 1} total={total} />
           <Timer
             duration={30}
-            onExpire={nextQuestion}
+            onExpire={handleExpireAndAdvance}
             timerKey={timerKey}
             paused={selectedAnswer !== null}
           />

@@ -8,22 +8,21 @@
  *
  * @returns {{
  *   phase: 'picking'|'playing'|'finished',
- *   questions: object[],
  *   currentIndex: number,
  *   score: number,
  *   selectedAnswer: string|null,
  *   timerKey: number,
  *   question: object|null,
  *   total: number,
- *   isCorrect: boolean,
  *   startQuiz: (questionsArray: object[]) => void,
  *   handleAnswer: (key: string) => void,
+ *   handleExpire: () => void,
  *   nextQuestion: () => void,
  *   resetQuiz: () => void,
  * }}
  */
 
-import { useState } from 'react'
+import { useReducer } from 'react'
 
 const INITIAL_STATE = {
   phase: 'picking',
@@ -34,73 +33,65 @@ const INITIAL_STATE = {
   timerKey: 0,
 }
 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'START': {
+      return {
+        ...INITIAL_STATE,
+        phase: 'playing',
+        questions: action.questions,
+      }
+    }
+    case 'ANSWER': {
+      if (state.selectedAnswer !== null) return state
+      const correct = action.key === state.questions[state.currentIndex]?.correctKey
+      return {
+        ...state,
+        selectedAnswer: action.key,
+        score: correct ? state.score + 1 : state.score,
+      }
+    }
+    case 'EXPIRE': {
+      if (state.selectedAnswer !== null) return state
+      return { ...state, selectedAnswer: '' } // '' triggers reveal, no points
+    }
+    case 'NEXT': {
+      const isLast = state.currentIndex + 1 >= state.questions.length
+      if (isLast) {
+        return { ...state, phase: 'finished' }
+      }
+      return {
+        ...state,
+        currentIndex: state.currentIndex + 1,
+        selectedAnswer: null,
+        timerKey: state.timerKey + 1,
+      }
+    }
+    case 'RESET':
+      return INITIAL_STATE
+    default:
+      return state
+  }
+}
+
 export function useQuiz() {
-  const [phase, setPhase] = useState(INITIAL_STATE.phase)
-  const [questions, setQuestions] = useState(INITIAL_STATE.questions)
-  const [currentIndex, setCurrentIndex] = useState(INITIAL_STATE.currentIndex)
-  const [score, setScore] = useState(INITIAL_STATE.score)
-  const [selectedAnswer, setSelectedAnswer] = useState(INITIAL_STATE.selectedAnswer)
-  const [timerKey, setTimerKey] = useState(INITIAL_STATE.timerKey)
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE)
 
-  const question = questions[currentIndex] ?? null
-  const total = questions.length
-  const isCorrect = selectedAnswer !== null && selectedAnswer === question?.correctKey
-
-  function startQuiz(questionsArray) {
-    setQuestions(questionsArray)
-    setCurrentIndex(0)
-    setScore(0)
-    setSelectedAnswer(null)
-    setTimerKey(0)
-    setPhase('playing')
-  }
-
-  function handleAnswer(key) {
-    if (selectedAnswer !== null) return
-    setSelectedAnswer(key)
-    if (key === question?.correctKey) {
-      setScore((s) => s + 1)
-    }
-  }
-
-  function handleExpire() {
-    if (selectedAnswer !== null) return
-    setSelectedAnswer('')  // triggers reveal, no points ('' never matches a correctKey)
-  }
-
-  function nextQuestion() {
-    if (currentIndex + 1 >= total) {
-      setPhase('finished')
-    } else {
-      setCurrentIndex((i) => i + 1)
-      setSelectedAnswer(null)
-      setTimerKey((k) => k + 1)
-    }
-  }
-
-  function resetQuiz() {
-    setPhase(INITIAL_STATE.phase)
-    setQuestions(INITIAL_STATE.questions)
-    setCurrentIndex(INITIAL_STATE.currentIndex)
-    setScore(INITIAL_STATE.score)
-    setSelectedAnswer(INITIAL_STATE.selectedAnswer)
-    setTimerKey(INITIAL_STATE.timerKey)
-  }
+  const question = state.questions[state.currentIndex] ?? null
+  const total = state.questions.length
 
   return {
-    phase,
-    questions,
-    currentIndex,
-    score,
-    selectedAnswer,
-    timerKey,
+    phase:          state.phase,
+    currentIndex:   state.currentIndex,
+    score:          state.score,
+    selectedAnswer: state.selectedAnswer,
+    timerKey:       state.timerKey,
     question,
     total,
-    isCorrect,
-    startQuiz,
-    handleAnswer,
-    handleExpire,
-    nextQuestion,
-    resetQuiz,
+    startQuiz:    (questions) => dispatch({ type: 'START', questions }),
+    handleAnswer: (key)       => dispatch({ type: 'ANSWER', key }),
+    handleExpire: ()          => dispatch({ type: 'EXPIRE' }),
+    nextQuestion: ()          => dispatch({ type: 'NEXT' }),
+    resetQuiz:    ()          => dispatch({ type: 'RESET' }),
   }
 }
