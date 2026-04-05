@@ -4,6 +4,20 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.8.2 — 2026-04-05
+- Fixed `time_taken` → `time_taken_seconds` to match actual Supabase column name
+
+### 0.8.1 — 2026-04-05
+- Fixed `handleSave` — table name corrected to `quiz_scores`, `total` → `total_questions` to match actual schema
+- Updated `supabase/schema.sql` to reflect real table structure and RLS policies
+
+### 0.8.0 — 2026-04-05
+- Created `src/components/AuthModal.jsx` — email/password sign in + sign up, closes on success
+- Updated `QuizApp.jsx` — auth bar on picking screen, real Supabase leaderboard insert in `handleSave`, `AuthModal` rendered on `showAuth`
+- Updated `ScoreScreen.jsx` — guest "Sign in" is now a clickable button via `onSignIn` prop
+- Created `supabase/schema.sql` — leaderboard table + RLS policies reference
+- Added `.auth-bar`, `.auth-modal`, `.auth-overlay`, `.auth-tabs`, `.auth-form` CSS to `index.css`
+
 ### 0.7.0 — 2026-04-05
 - Created `src/components/ScoreScreen.jsx` — grade, score, meta, save to leaderboard (auth-aware), play again
 - Updated `QuizApp.jsx` — tracks user via `supabase.auth`, category name, difficulty, timeTaken; renders ScoreScreen on finish

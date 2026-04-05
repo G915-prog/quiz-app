@@ -6,6 +6,7 @@ import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
 import ProgressBar from '../components/ProgressBar'
 import ScoreScreen from '../components/ScoreScreen'
+import AuthModal from '../components/AuthModal'
 
 const KEYS = ['A', 'B', 'C', 'D']
 
@@ -49,13 +50,15 @@ function QuizApp() {
   const [category, setCategory] = useState('')
   const [difficulty, setDifficulty] = useState('')
   const [timeTaken, setTimeTaken] = useState(0)
+  const [showAuth, setShowAuth] = useState(false)
 
-  // Resolve Supabase auth once on mount
+  // Resolve Supabase auth on mount, keep in sync
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null))
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      if (session?.user) setShowAuth(false) // close modal on successful sign-in
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -72,23 +75,23 @@ function QuizApp() {
     console.groupEnd()
   }, [phase, currentIndex, selectedAnswer, score, timerKey])
 
-  // Capture elapsed time when quiz finishes
+  // Record time when quiz finishes
   useEffect(() => {
     if (phase === 'finished' && startTimeRef.current) {
       setTimeTaken(Math.round((Date.now() - startTimeRef.current) / 1000))
     }
   }, [phase])
 
-  function handleStart(categoryId, difficulty, categoryName) {
+  function handleStart(categoryId, diff, categoryName) {
     fetch(
-      `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=${difficulty}&type=multiple`
+      `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=${diff}&type=multiple`
     )
       .then((res) => res.json())
       .then((data) => {
         const processed = data.results.map(processQuestion)
         console.log('[fetch] questions loaded:', processed)
         setCategory(categoryName)
-        setDifficulty(difficulty)
+        setDifficulty(diff)
         startTimeRef.current = Date.now()
         startQuiz(processed)
       })
@@ -101,9 +104,16 @@ function QuizApp() {
   }
 
   async function handleSave(entry) {
-    console.log('[save] submitting:', entry)
-    // TODO: insert into Supabase leaderboard table
-    throw new Error('Leaderboard table not set up yet')
+    const { error } = await supabase.from('quiz_scores').insert({
+      user_id:         user.id,
+      username:        entry.username,
+      score:           entry.score,
+      total_questions: entry.total,
+      category:        entry.category,
+      difficulty:      entry.difficulty,
+      time_taken_seconds: entry.timeTaken,
+    })
+    if (error) throw new Error(error.message)
   }
 
   function handleRestart() {
@@ -116,7 +126,23 @@ function QuizApp() {
       <h1 className="quiz-title">Quiz App</h1>
 
       {phase === 'picking' && (
-        <CategoryPicker onStart={handleStart} />
+        <>
+          <div className="auth-bar">
+            {user ? (
+              <>
+                <span className="auth-bar__email">{user.email}</span>
+                <button className="auth-bar__btn" onClick={() => supabase.auth.signOut()}>
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <button className="auth-bar__btn" onClick={() => setShowAuth(true)}>
+                Sign in
+              </button>
+            )}
+          </div>
+          <CategoryPicker onStart={handleStart} />
+        </>
       )}
 
       {phase === 'playing' && question && (
@@ -145,9 +171,12 @@ function QuizApp() {
           timeTaken={timeTaken}
           onSave={handleSave}
           onRestart={handleRestart}
+          onSignIn={() => setShowAuth(true)}
           user={user}
         />
       )}
+
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </main>
   )
 }

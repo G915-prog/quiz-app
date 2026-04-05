@@ -8,7 +8,7 @@ function getGrade(pct) {
   return 'F'
 }
 
-function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, onRestart, user }) {
+function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, onRestart, onSignIn, user }) {
   const pct = Math.round((score / total) * 100)
   const grade = getGrade(pct)
   const minutes = Math.floor(timeTaken / 60)
@@ -64,7 +64,9 @@ function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, on
             {saveState === 'error' && <p className="score-error">{errorMsg}</p>}
           </div>
         ) : (
-          <p className="score-guest">Sign in to save your score</p>
+          <button className="score-btn score-btn--ghost" onClick={onSignIn}>
+            Sign in to save your score
+          </button>
         )}
 
         <button className="score-btn score-btn--ghost" onClick={onRestart}>
