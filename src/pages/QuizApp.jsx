@@ -1,8 +1,13 @@
+import { useEffect } from 'react'
 import { useQuiz } from '../hooks/useQuiz'
 import CategoryPicker from '../components/CategoryPicker'
 
 function QuizApp() {
   const { startQuiz, phase, questions, score, total } = useQuiz()
+
+  useEffect(() => {
+    console.log('phase:', phase)
+  }, [phase])
 
   function handleStart(categoryId, difficulty) {
     // TODO: fetch questions from OpenTDB using categoryId + difficulty, then call startQuiz(questionsArray)
