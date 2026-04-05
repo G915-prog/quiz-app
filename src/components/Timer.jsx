@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const CIRCUMFERENCE = 125.66
 
-function Timer({ duration = 30, onExpire, timerKey }) {
+function Timer({ duration = 30, onExpire, timerKey, paused = false }) {
   const [secondsLeft, setSecondsLeft] = useState(duration)
+  const pausedRef = useRef(paused)
+
+  useEffect(() => { pausedRef.current = paused }, [paused])
 
   useEffect(() => {
     setSecondsLeft(duration)
 
     const interval = setInterval(() => {
       setSecondsLeft((s) => {
+        if (pausedRef.current) return s
         if (s <= 1) {
           clearInterval(interval)
           onExpire()

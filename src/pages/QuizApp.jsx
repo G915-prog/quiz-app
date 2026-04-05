@@ -17,7 +17,7 @@ const TEST_QUESTIONS = [
 ]
 
 function QuizApp() {
-  const { startQuiz, phase, question, selectedAnswer, handleAnswer, nextQuestion, timerKey } = useQuiz()
+  const { startQuiz, phase, question, selectedAnswer, handleAnswer, handleExpire, nextQuestion, timerKey } = useQuiz()
 
   function handleStart(categoryId, difficulty) {
     startQuiz(TEST_QUESTIONS)
@@ -29,8 +29,11 @@ function QuizApp() {
       {phase === 'picking' && <CategoryPicker onStart={handleStart} />}
       {phase === 'playing' && question && (
         <>
-          <Timer duration={30} onExpire={nextQuestion} timerKey={timerKey} />
+          <Timer duration={30} onExpire={handleExpire} timerKey={timerKey} paused={selectedAnswer !== null} />
           <QuestionCard question={question} selectedAnswer={selectedAnswer} onAnswer={handleAnswer} />
+          {selectedAnswer !== null && (
+            <button className="next-btn" onClick={nextQuestion}>Next Question</button>
+          )}
         </>
       )}
     </main>

@@ -63,6 +63,11 @@ export function useQuiz() {
     }
   }
 
+  function handleExpire() {
+    if (selectedAnswer !== null) return
+    setSelectedAnswer('')  // triggers reveal, no points ('' never matches a correctKey)
+  }
+
   function nextQuestion() {
     if (currentIndex + 1 >= total) {
       setPhase('finished')
@@ -94,6 +99,7 @@ export function useQuiz() {
     isCorrect,
     startQuiz,
     handleAnswer,
+    handleExpire,
     nextQuestion,
     resetQuiz,
   }

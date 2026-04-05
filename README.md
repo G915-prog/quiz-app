@@ -4,6 +4,12 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.5.2 — 2026-04-05
+- Timer now pauses when an answer is selected (`paused` prop + ref pattern)
+- Added `handleExpire` to `useQuiz` — reveals correct answer on timeout without awarding points
+- Added "Next Question" button in `QuizApp` that appears after reveal (answer clicked or timer expired)
+- Added `.next-btn` styles to `index.css`
+
 ### 0.5.1 — 2026-04-05
 - Wired `Timer` into `QuizApp.jsx` — renders above `QuestionCard` during `'playing'` phase, calls `nextQuestion` on expire
 
