@@ -4,6 +4,12 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.7.0 — 2026-04-05
+- Created `src/components/ScoreScreen.jsx` — grade, score, meta, save to leaderboard (auth-aware), play again
+- Updated `QuizApp.jsx` — tracks user via `supabase.auth`, category name, difficulty, timeTaken; renders ScoreScreen on finish
+- Updated `CategoryPicker.jsx` — passes category name as 3rd arg to `onStart`
+- Added `.score-screen`, `.score-result`, `.score-grade`, `.score-meta`, `.score-actions` and related classes to `index.css`
+
 ### 0.6.0 — 2026-04-05
 - Created `src/components/ProgressBar.jsx` — "Question X of Y" label + animated fill bar
 - Rewrote `src/pages/QuizApp.jsx` — full game flow: fetch + decode + shuffle from OpenTDB, phase-based rendering, 1200ms auto-advance after answer, finished screen

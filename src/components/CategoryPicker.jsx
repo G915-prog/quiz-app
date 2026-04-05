@@ -59,7 +59,10 @@ function CategoryPicker({ onStart }) {
 
       <button
         className="picker-btn"
-        onClick={() => onStart(categoryId, difficulty)}
+        onClick={() => {
+          const name = categories.find((c) => c.id === categoryId)?.name ?? ''
+          onStart(categoryId, difficulty, name)
+        }}
       >
         Start Quiz
       </button>

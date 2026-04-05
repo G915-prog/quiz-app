@@ -1,9 +1,11 @@
-import { useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useQuiz } from '../hooks/useQuiz'
+import { supabase } from '../lib/supabase'
 import CategoryPicker from '../components/CategoryPicker'
 import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
 import ProgressBar from '../components/ProgressBar'
+import ScoreScreen from '../components/ScoreScreen'
 
 const KEYS = ['A', 'B', 'C', 'D']
 
@@ -33,7 +35,7 @@ function processQuestion(q) {
 
 function QuizApp() {
   const {
-    startQuiz, phase,
+    startQuiz, resetQuiz, phase,
     question, currentIndex, total,
     selectedAnswer, handleAnswer,
     nextQuestion, timerKey,
@@ -41,18 +43,72 @@ function QuizApp() {
   } = useQuiz()
 
   const advanceTimer = useRef(null)
+  const startTimeRef = useRef(null)
 
-  function handleStart(categoryId, difficulty) {
+  const [user, setUser] = useState(null)
+  const [category, setCategory] = useState('')
+  const [difficulty, setDifficulty] = useState('')
+  const [timeTaken, setTimeTaken] = useState(0)
+
+  // Resolve Supabase auth once on mount
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null))
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  // Debug logging
+  useEffect(() => {
+    console.group(`[useQuiz] phase: ${phase}`)
+    console.log('currentIndex :', currentIndex)
+    console.log('total        :', total)
+    console.log('score        :', score)
+    console.log('timerKey     :', timerKey)
+    console.log('selectedAnswer:', selectedAnswer)
+    console.log('question     :', question)
+    console.groupEnd()
+  }, [phase, currentIndex, selectedAnswer, score, timerKey])
+
+  // Capture elapsed time when quiz finishes
+  useEffect(() => {
+    if (phase === 'finished' && startTimeRef.current) {
+      setTimeTaken(Math.round((Date.now() - startTimeRef.current) / 1000))
+    }
+  }, [phase])
+
+  function handleStart(categoryId, difficulty, categoryName) {
     fetch(
       `https://opentdb.com/api.php?amount=10&category=${categoryId}&difficulty=${difficulty}&type=multiple`
     )
       .then((res) => res.json())
-      .then((data) => startQuiz(data.results.map(processQuestion)))
+      .then((data) => {
+        const processed = data.results.map(processQuestion)
+        console.log('[fetch] questions loaded:', processed)
+        setCategory(categoryName)
+        setDifficulty(difficulty)
+        startTimeRef.current = Date.now()
+        startQuiz(processed)
+      })
   }
 
   function handleAnswerAndAdvance(key) {
+    console.log(`[answer] selected: ${key} | correct: ${question?.correctKey} | ${key === question?.correctKey ? '✓ correct' : '✗ wrong'}`)
     handleAnswer(key)
     advanceTimer.current = setTimeout(nextQuestion, 1200)
+  }
+
+  async function handleSave(entry) {
+    console.log('[save] submitting:', entry)
+    // TODO: insert into Supabase leaderboard table
+    throw new Error('Leaderboard table not set up yet')
+  }
+
+  function handleRestart() {
+    clearTimeout(advanceTimer.current)
+    resetQuiz()
   }
 
   return (
@@ -81,7 +137,16 @@ function QuizApp() {
       )}
 
       {phase === 'finished' && (
-        <p className="game-over">Game over — score: {score}/{total}</p>
+        <ScoreScreen
+          score={score}
+          total={total}
+          category={category}
+          difficulty={difficulty}
+          timeTaken={timeTaken}
+          onSave={handleSave}
+          onRestart={handleRestart}
+          user={user}
+        />
       )}
     </main>
   )
