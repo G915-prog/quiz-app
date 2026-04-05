@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── Reset & base ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #0f0e17;
+  --surface:    #1a1926;
+  --border:     #2e2c45;
+  --text:       #a8a4c8;
+  --text-hi:    #fffffe;
+  --accent:     #e8c468;
+  --accent-dim: rgba(232, 196, 104, 0.12);
+  --danger:     #ff6b6b;
+  --radius:     10px;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-mono:  'DM Mono', 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── CategoryPicker ─────────────────────────────────────── */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.picker-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.picker-select {
+  appearance: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-hi);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.picker-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.picker-btn {
+  margin-top: 4px;
+  padding: 12px;
+  background: var(--accent);
+  color: #0f0e17;
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.picker-btn:hover { opacity: 0.88; }
+.picker-btn:active { transform: scale(0.98); }
+
+/* ── Status messages ────────────────────────────────────── */
+.picker-status {
+  text-align: center;
+  padding: 24px;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+
+.picker-status--error { color: var(--danger); }
