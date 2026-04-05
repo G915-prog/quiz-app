@@ -4,6 +4,9 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 1.0.0 — 2026-04-05
+- Created `src/hooks/useLeaderboard.js` — fetches top 10 scores on mount, exposes `saveScore(entry)`, subscribes to real-time INSERT events (re-sorts + trims to 10 on each new row), unsubscribes on unmount
+
 ### 0.9.0 — 2026-04-05
 - Removed all auth — no sign in, no Supabase auth, no user_id sent on save
 - Deleted `AuthModal.jsx`
