@@ -4,6 +4,12 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.6.0 — 2026-04-05
+- Created `src/components/ProgressBar.jsx` — "Question X of Y" label + animated fill bar
+- Rewrote `src/pages/QuizApp.jsx` — full game flow: fetch + decode + shuffle from OpenTDB, phase-based rendering, 1200ms auto-advance after answer, finished screen
+- Added `.progress-wrap`, `.progress-track`, `.progress-fill`, `.progress-label`, `.game-over` to `index.css`
+- Removed `.next-btn` (replaced by auto-advance)
+
 ### 0.5.2 — 2026-04-05
 - Timer now pauses when an answer is selected (`paused` prop + ref pattern)
 - Added `handleExpire` to `useQuiz` — reveals correct answer on timeout without awarding points
