@@ -4,6 +4,11 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.4.0 — 2026-04-05
+- Created `src/components/OptionButton.jsx` — renders an answer option with correct/wrong/neutral reveal states
+- Created `src/components/QuestionCard.jsx` — renders question text and 4 OptionButtons, handles reveal logic
+- Added `.question-card`, `.question-text`, `.options-grid`, `.option-btn`, `.option-btn--correct`, `.option-btn--wrong`, `.option-btn--neutral` to `index.css`
+
 ### 0.3.1 — 2026-04-05
 - Wired `useQuiz` into `QuizApp.jsx` — Start Quiz button now calls `startQuiz`, picker only shown in `'picking'` phase
 
