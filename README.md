@@ -4,6 +4,10 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.8.3 — 2026-04-05
+- Fixed Supabase env var names to match Vercel: `VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
+- Updated `.env.local` to match
+
 ### 0.8.2 — 2026-04-05
 - Fixed `time_taken` → `time_taken_seconds` to match actual Supabase column name
 
