@@ -4,6 +4,13 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 1.4.0 — 2026-04-05
+- Created `src/lib/questions.js` — extracted `processQuestion`, `decodeHTML`, `shuffle`, `KEYS` out of `QuizApp.jsx`
+- Created `src/lib/scores.js` — extracted Supabase insert logic out of `QuizApp.jsx` into `insertScore()`
+- Created `src/hooks/useCategories.js` — extracted category fetch + selection state out of `CategoryPicker`; exposes `categories`, `categoryId`, `setCategoryId`, `selectedCategoryName`, `loading`, `error`
+- Refactored `CategoryPicker.jsx` — now purely presentational; all data fetching delegated to `useCategories`
+- Refactored `QuizApp.jsx` — no utility functions, no direct Supabase calls; imports from lib and hooks only
+
 ### 1.3.0 — 2026-04-05
 - Refactored `useQuiz` from 6 `useState` calls to `useReducer` — state transitions are now atomic and explicit (`START`, `ANSWER`, `EXPIRE`, `NEXT`, `RESET` actions)
 - Restored React Router — recreated `src/App.jsx`, restored `BrowserRouter` in `main.jsx`

@@ -1,38 +1,13 @@
 import { useRef, useEffect, useState } from 'react'
 import { useQuiz } from '../hooks/useQuiz'
-import { supabase } from '../lib/supabase'
+import { processQuestion } from '../lib/questions'
+import { insertScore } from '../lib/scores'
 import CategoryPicker from '../components/CategoryPicker'
 import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
 import ProgressBar from '../components/ProgressBar'
 import ScoreScreen from '../components/ScoreScreen'
 import Leaderboard from '../components/Leaderboard'
-
-const KEYS = ['A', 'B', 'C', 'D']
-
-function decodeHTML(str) {
-  const doc = new DOMParser().parseFromString(str, 'text/html')
-  return doc.body.textContent ?? str
-}
-
-function shuffle(arr) {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-
-function processQuestion(q) {
-  const answers = shuffle([q.correct_answer, ...q.incorrect_answers])
-  const correctIndex = answers.indexOf(q.correct_answer)
-  return {
-    text: decodeHTML(q.question),
-    correctKey: KEYS[correctIndex],
-    options: answers.map((text, i) => ({ key: KEYS[i], text: decodeHTML(text) })),
-  }
-}
 
 function QuizApp() {
   const {
@@ -51,6 +26,7 @@ function QuizApp() {
   const [timeTaken, setTimeTaken] = useState(0)
   const [fetchError, setFetchError] = useState(null)
 
+  // Track time from when playing starts to when the quiz finishes
   useEffect(() => {
     if (phase === 'playing') {
       startTimeRef.current = Date.now()
@@ -72,10 +48,9 @@ function QuizApp() {
       })
       .then((data) => {
         if (!data.results?.length) throw new Error('No questions returned. Try a different category.')
-        const processed = data.results.map(processQuestion)
         setCategory(categoryName)
         setDifficulty(diff)
-        startQuiz(processed)
+        startQuiz(data.results.map(processQuestion))
       })
       .catch((err) => setFetchError(err.message))
   }
@@ -91,15 +66,7 @@ function QuizApp() {
   }
 
   async function handleSave(entry) {
-    const { error } = await supabase.from('quiz_scores').insert({
-      username:           entry.username,
-      score:              entry.score,
-      total_questions:    entry.total,
-      category:           entry.category,
-      difficulty:         entry.difficulty,
-      time_taken_seconds: entry.timeTaken,
-    })
-    if (error) throw new Error(error.message)
+    await insertScore(entry) // throws on error; ScoreScreen catches and displays it
   }
 
   function handleRestart() {

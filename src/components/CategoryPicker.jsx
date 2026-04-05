@@ -1,36 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useCategories } from '../hooks/useCategories'
 
 function CategoryPicker({ onStart }) {
-  const [categories, setCategories] = useState([])
-  const [categoryId, setCategoryId] = useState('')
+  const { categories, categoryId, setCategoryId, selectedCategoryName, loading, error } = useCategories()
   const [difficulty, setDifficulty] = useState('easy')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    fetch('https://opentdb.com/api_category.php', { signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch categories')
-        return res.json()
-      })
-      .then((data) => {
-        setCategories(data.trivia_categories)
-        setCategoryId(data.trivia_categories[0]?.id ?? '')
-        setLoading(false)
-      })
-      .catch((err) => {
-        if (err.name === 'AbortError') return
-        setError(err.message)
-        setLoading(false)
-      })
-
-    return () => controller.abort()
-  }, [])
 
   if (loading) return <p className="picker-status">Loading categories…</p>
-  if (error) return <p className="picker-status picker-status--error">Error: {error}</p>
+  if (error)   return <p className="picker-status picker-status--error">Error: {error}</p>
 
   return (
     <div className="picker">
@@ -39,7 +15,7 @@ function CategoryPicker({ onStart }) {
         <select
           id="category"
           className="picker-select"
-          value={categoryId}
+          value={categoryId ?? ''}
           onChange={(e) => setCategoryId(Number(e.target.value))}
         >
           {categories.map((cat) => (
@@ -64,10 +40,7 @@ function CategoryPicker({ onStart }) {
 
       <button
         className="picker-btn"
-        onClick={() => {
-          const name = categories.find((c) => c.id === categoryId)?.name ?? ''
-          onStart(categoryId, difficulty, name)
-        }}
+        onClick={() => onStart(categoryId, difficulty, selectedCategoryName)}
       >
         Start Quiz
       </button>
