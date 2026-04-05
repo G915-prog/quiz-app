@@ -4,6 +4,9 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.4.1 — 2026-04-05
+- Wired `QuestionCard` into `QuizApp.jsx` with a hardcoded test question — renders when phase is `'playing'`
+
 ### 0.4.0 — 2026-04-05
 - Created `src/components/OptionButton.jsx` — renders an answer option with correct/wrong/neutral reveal states
 - Created `src/components/QuestionCard.jsx` — renders question text and 4 OptionButtons, handles reveal logic
