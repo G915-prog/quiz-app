@@ -196,3 +196,41 @@ body {
 
 .option-btn--correct .option-btn__key { background: rgba(74, 222, 128, 0.2); }
 .option-btn--wrong .option-btn__key   { background: rgba(255, 107, 107, 0.2); }
+
+/* ── Timer ───────────────────────────────────────────────── */
+.timer-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+}
+
+.timer-svg {
+  width: 56px;
+  height: 56px;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg {
+  stroke: var(--border);
+}
+
+.timer-ring {
+  stroke: var(--accent);
+  transition: stroke-dashoffset 0.8s linear, stroke 0.3s;
+}
+
+.timer-wrap:has(.timer-ring[data-urgent]) .timer-ring {
+  stroke: var(--danger);
+}
+
+.timer-text {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-hi);
+  line-height: 1;
+}

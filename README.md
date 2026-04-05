@@ -4,6 +4,13 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.5.1 — 2026-04-05
+- Wired `Timer` into `QuizApp.jsx` — renders above `QuestionCard` during `'playing'` phase, calls `nextQuestion` on expire
+
+### 0.5.0 — 2026-04-05
+- Created `src/components/Timer.jsx` — SVG ring countdown, resets on `timerKey` change, calls `onExpire` at zero
+- Added `.timer-wrap`, `.timer-svg`, `.timer-ring-bg`, `.timer-ring`, `.timer-text` to `index.css`
+
 ### 0.4.1 — 2026-04-05
 - Wired `QuestionCard` into `QuizApp.jsx` with a hardcoded test question — renders when phase is `'playing'`
 
