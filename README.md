@@ -4,6 +4,9 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.3.0 — 2026-04-05
+- Created `src/hooks/useQuiz.js` — manages all quiz game logic (phase, questions, score, answer selection, timer reset, derived values)
+
 ### 0.2.1 — 2026-04-05
 - Wired `CategoryPicker` into `QuizApp.jsx` so the picker and Start Quiz button are actually rendered
 - Added `.quiz-app` and `.quiz-title` layout classes to `index.css`
