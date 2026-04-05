@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from 'react'
 import { useQuiz } from '../hooks/useQuiz'
-import { supabase } from '../lib/supabase'
+import { useLeaderboard } from '../hooks/useLeaderboard'
 import CategoryPicker from '../components/CategoryPicker'
 import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
 import ProgressBar from '../components/ProgressBar'
 import ScoreScreen from '../components/ScoreScreen'
+import Leaderboard from '../components/Leaderboard'
 
 const KEYS = ['A', 'B', 'C', 'D']
 
@@ -42,6 +43,8 @@ function QuizApp() {
     score,
   } = useQuiz()
 
+  const { saveScore } = useLeaderboard()
+
   const advanceTimer = useRef(null)
   const startTimeRef = useRef(null)
 
@@ -49,22 +52,13 @@ function QuizApp() {
   const [difficulty, setDifficulty] = useState('')
   const [timeTaken, setTimeTaken] = useState(0)
 
-  // Debug logging
   useEffect(() => {
-    console.group(`[useQuiz] phase: ${phase}`)
-    console.log('currentIndex :', currentIndex)
-    console.log('total        :', total)
-    console.log('score        :', score)
-    console.log('timerKey     :', timerKey)
-    console.log('selectedAnswer:', selectedAnswer)
-    console.log('question     :', question)
-    console.groupEnd()
-  }, [phase, currentIndex, selectedAnswer, score, timerKey])
-
-  // Record time when quiz finishes
-  useEffect(() => {
+    if (phase === 'playing') {
+      startTimeRef.current = Date.now()
+    }
     if (phase === 'finished' && startTimeRef.current) {
       setTimeTaken(Math.round((Date.now() - startTimeRef.current) / 1000))
+      startTimeRef.current = null
     }
   }, [phase])
 
@@ -75,34 +69,33 @@ function QuizApp() {
       .then((res) => res.json())
       .then((data) => {
         const processed = data.results.map(processQuestion)
-        console.log('[fetch] questions loaded:', processed)
         setCategory(categoryName)
         setDifficulty(diff)
-        startTimeRef.current = Date.now()
         startQuiz(processed)
       })
   }
 
   function handleAnswerAndAdvance(key) {
-    console.log(`[answer] selected: ${key} | correct: ${question?.correctKey} | ${key === question?.correctKey ? '✓ correct' : '✗ wrong'}`)
     handleAnswer(key)
     advanceTimer.current = setTimeout(nextQuestion, 1200)
   }
 
   async function handleSave(entry) {
-    const { error } = await supabase.from('quiz_scores').insert({
-      username:           entry.username,
-      score:              entry.score,
-      total_questions:    entry.total,
-      category:           entry.category,
-      difficulty:         entry.difficulty,
-      time_taken_seconds: entry.timeTaken,
+    const { error } = await saveScore({
+      userId:           null,
+      username:         entry.username,
+      score:            entry.score,
+      totalQuestions:   entry.total,
+      category:         entry.category,
+      difficulty:       entry.difficulty,
+      timeTakenSeconds: entry.timeTaken,
     })
-    if (error) throw new Error(error.message)
+    if (error) throw new Error(error)
   }
 
   function handleRestart() {
     clearTimeout(advanceTimer.current)
+    startTimeRef.current = null
     resetQuiz()
   }
 
@@ -111,7 +104,10 @@ function QuizApp() {
       <h1 className="quiz-title">Quiz App</h1>
 
       {phase === 'picking' && (
-        <CategoryPicker onStart={handleStart} />
+        <>
+          <CategoryPicker onStart={handleStart} />
+          <Leaderboard />
+        </>
       )}
 
       {phase === 'playing' && question && (
@@ -132,15 +128,18 @@ function QuizApp() {
       )}
 
       {phase === 'finished' && (
-        <ScoreScreen
-          score={score}
-          total={total}
-          category={category}
-          difficulty={difficulty}
-          timeTaken={timeTaken}
-          onSave={handleSave}
-          onRestart={handleRestart}
-        />
+        <>
+          <ScoreScreen
+            score={score}
+            total={total}
+            category={category}
+            difficulty={difficulty}
+            timeTaken={timeTaken}
+            onSave={handleSave}
+            onRestart={handleRestart}
+          />
+          <Leaderboard />
+        </>
       )}
     </main>
   )

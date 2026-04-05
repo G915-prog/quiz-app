@@ -4,6 +4,12 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 1.1.0 — 2026-04-05
+- Created `src/components/Leaderboard.jsx` — renders Top 10 table (rank, player, score, category, difficulty, time) using `useLeaderboard`; shows loading/empty/error states
+- Updated `src/pages/QuizApp.jsx` — imports `useLeaderboard` for `saveScore`; renders `<Leaderboard />` on picking and finished screens; fixes timer to start on `'playing'` phase via `useEffect`; removed debug console logs
+- Updated `src/components/ScoreScreen.jsx` — save button no longer requires a name; falls back to a random animal name if input is blank
+- Added `.leaderboard`, `.leaderboard-table`, `.leaderboard-row`, `.leaderboard-rank`, `.leaderboard-mine`, `.leaderboard-difficulty`, `.leaderboard-status` CSS to `src/index.css`
+
 ### 1.0.0 — 2026-04-05
 - Created `src/hooks/useLeaderboard.js` — fetches top 10 scores on mount, exposes `saveScore(entry)`, subscribes to real-time INSERT events (re-sorts + trims to 10 on each new row), unsubscribes on unmount
 

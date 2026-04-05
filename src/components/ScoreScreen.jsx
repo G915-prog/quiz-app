@@ -1,5 +1,17 @@
 import { useState } from 'react'
 
+const ANIMALS = [
+  'Brave Badger', 'Clever Crow', 'Dizzy Dolphin', 'Eager Eagle',
+  'Fuzzy Ferret', 'Grumpy Gecko', 'Happy Hedgehog', 'Jolly Jaguar',
+  'Lazy Lemur', 'Mighty Mongoose', 'Nimble Newt', 'Odd Otter',
+  'Peppy Penguin', 'Quick Quokka', 'Rowdy Raccoon', 'Sneaky Squirrel',
+  'Tiny Tapir', 'Uppity Uakari', 'Vivid Vole', 'Wacky Wombat',
+]
+
+function randomAnimal() {
+  return ANIMALS[Math.floor(Math.random() * ANIMALS.length)]
+}
+
 function getGrade(pct) {
   if (pct >= 90) return 'A'
   if (pct >= 75) return 'B'
@@ -19,9 +31,10 @@ function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, on
   const [errorMsg, setErrorMsg] = useState('')
 
   async function handleSave() {
+    const name = username.trim() || randomAnimal()
     setSaveState('saving')
     try {
-      await onSave({ username, score, total, category, difficulty, timeTaken })
+      await onSave({ username: name, score, total, category, difficulty, timeTaken })
       setSaveState('saved')
     } catch (err) {
       setErrorMsg(err.message ?? 'Failed to save score.')
@@ -50,13 +63,13 @@ function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, on
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your name"
+            placeholder="Enter your name (or get a random one)"
             disabled={saveState === 'saving' || saveState === 'saved'}
           />
           <button
             className="score-btn score-btn--primary"
             onClick={handleSave}
-            disabled={saveState === 'saving' || saveState === 'saved' || !username.trim()}
+            disabled={saveState === 'saving' || saveState === 'saved'}
           >
             {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved!' : 'Save to leaderboard'}
           </button>
