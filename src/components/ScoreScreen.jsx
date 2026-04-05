@@ -8,13 +8,13 @@ function getGrade(pct) {
   return 'F'
 }
 
-function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, onRestart, onSignIn, user }) {
+function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, onRestart }) {
   const pct = Math.round((score / total) * 100)
   const grade = getGrade(pct)
   const minutes = Math.floor(timeTaken / 60)
   const seconds = timeTaken % 60
 
-  const [username, setUsername] = useState(user ? user.email.split('@')[0] : '')
+  const [username, setUsername] = useState('')
   const [saveState, setSaveState] = useState('idle') // 'idle' | 'saving' | 'saved' | 'error'
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -44,30 +44,24 @@ function ScoreScreen({ score, total, category, difficulty, timeTaken, onSave, on
       </ul>
 
       <div className="score-actions">
-        {user ? (
-          <div className="score-save">
-            <input
-              className="score-input"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              disabled={saveState === 'saving' || saveState === 'saved'}
-            />
-            <button
-              className="score-btn score-btn--primary"
-              onClick={handleSave}
-              disabled={saveState === 'saving' || saveState === 'saved' || !username.trim()}
-            >
-              {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved!' : 'Save to leaderboard'}
-            </button>
-            {saveState === 'error' && <p className="score-error">{errorMsg}</p>}
-          </div>
-        ) : (
-          <button className="score-btn score-btn--ghost" onClick={onSignIn}>
-            Sign in to save your score
+        <div className="score-save">
+          <input
+            className="score-input"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your name"
+            disabled={saveState === 'saving' || saveState === 'saved'}
+          />
+          <button
+            className="score-btn score-btn--primary"
+            onClick={handleSave}
+            disabled={saveState === 'saving' || saveState === 'saved' || !username.trim()}
+          >
+            {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved!' : 'Save to leaderboard'}
           </button>
-        )}
+          {saveState === 'error' && <p className="score-error">{errorMsg}</p>}
+        </div>
 
         <button className="score-btn score-btn--ghost" onClick={onRestart}>
           Play again

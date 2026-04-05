@@ -6,7 +6,6 @@ import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
 import ProgressBar from '../components/ProgressBar'
 import ScoreScreen from '../components/ScoreScreen'
-import AuthModal from '../components/AuthModal'
 
 const KEYS = ['A', 'B', 'C', 'D']
 
@@ -46,22 +45,9 @@ function QuizApp() {
   const advanceTimer = useRef(null)
   const startTimeRef = useRef(null)
 
-  const [user, setUser] = useState(null)
   const [category, setCategory] = useState('')
   const [difficulty, setDifficulty] = useState('')
   const [timeTaken, setTimeTaken] = useState(0)
-  const [showAuth, setShowAuth] = useState(false)
-
-  // Resolve Supabase auth on mount, keep in sync
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null))
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) setShowAuth(false) // close modal on successful sign-in
-    })
-    return () => subscription.unsubscribe()
-  }, [])
 
   // Debug logging
   useEffect(() => {
@@ -105,12 +91,11 @@ function QuizApp() {
 
   async function handleSave(entry) {
     const { error } = await supabase.from('quiz_scores').insert({
-      user_id:         user.id,
-      username:        entry.username,
-      score:           entry.score,
-      total_questions: entry.total,
-      category:        entry.category,
-      difficulty:      entry.difficulty,
+      username:           entry.username,
+      score:              entry.score,
+      total_questions:    entry.total,
+      category:           entry.category,
+      difficulty:         entry.difficulty,
       time_taken_seconds: entry.timeTaken,
     })
     if (error) throw new Error(error.message)
@@ -126,23 +111,7 @@ function QuizApp() {
       <h1 className="quiz-title">Quiz App</h1>
 
       {phase === 'picking' && (
-        <>
-          <div className="auth-bar">
-            {user ? (
-              <>
-                <span className="auth-bar__email">{user.email}</span>
-                <button className="auth-bar__btn" onClick={() => supabase.auth.signOut()}>
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <button className="auth-bar__btn" onClick={() => setShowAuth(true)}>
-                Sign in
-              </button>
-            )}
-          </div>
-          <CategoryPicker onStart={handleStart} />
-        </>
+        <CategoryPicker onStart={handleStart} />
       )}
 
       {phase === 'playing' && question && (
@@ -171,12 +140,8 @@ function QuizApp() {
           timeTaken={timeTaken}
           onSave={handleSave}
           onRestart={handleRestart}
-          onSignIn={() => setShowAuth(true)}
-          user={user}
         />
       )}
-
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
     </main>
   )
 }

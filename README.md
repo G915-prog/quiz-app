@@ -4,6 +4,14 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 
 ## Changelog
 
+### 0.9.0 — 2026-04-05
+- Removed all auth — no sign in, no Supabase auth, no user_id sent on save
+- Deleted `AuthModal.jsx`
+- Simplified `ScoreScreen.jsx` — always shows name input + Save button, no user prop
+- Simplified `QuizApp.jsx` — removed auth state, auth bar, AuthModal; handleSave sends guest row only
+- Removed all auth CSS from `index.css`
+- Updated `supabase/schema.sql` to reflect nullable user_id, no foreign key, public insert policy
+
 ### 0.8.3 — 2026-04-05
 - Fixed Supabase env var names to match Vercel: `VITE_PUBLIC_SUPABASE_URL` and `VITE_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
 - Updated `.env.local` to match
