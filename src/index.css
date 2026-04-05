@@ -26,6 +26,22 @@ body {
   min-height: 100vh;
 }
 
+/* ── Page layout ────────────────────────────────────────── */
+.quiz-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px;
+  gap: 32px;
+}
+
+.quiz-title {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  color: var(--text-hi);
+  letter-spacing: -0.02em;
+}
+
 /* ── CategoryPicker ─────────────────────────────────────── */
 .picker {
   display: flex;

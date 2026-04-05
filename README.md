@@ -1,9 +1,12 @@
-<<<<<<< HEAD
 # Quiz App
 
 A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/) API and Supabase.
 
 ## Changelog
+
+### 0.2.1 — 2026-04-05
+- Wired `CategoryPicker` into `QuizApp.jsx` so the picker and Start Quiz button are actually rendered
+- Added `.quiz-app` and `.quiz-title` layout classes to `index.css`
 
 ### 0.2.0 — 2026-04-05
 - Added `src/components/CategoryPicker.jsx` — fetches categories from OpenTDB, renders category/difficulty selects and a Start Quiz button
@@ -17,7 +20,3 @@ A React + Vite quiz application using the [Open Trivia DB](https://opentdb.com/)
 - Created `src/pages/QuizApp.jsx` placeholder
 - Created `src/lib/supabase.js` — Supabase client initialised from `import.meta.env`
 - Added `.env.local` with placeholder Supabase vars
-=======
-# quiz-app
-testing quiz app
->>>>>>> 8319747af2a2071f39c8ac336a52bac22fe77c3d
