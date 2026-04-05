@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { useQuiz } from '../hooks/useQuiz'
-import { useLeaderboard } from '../hooks/useLeaderboard'
+import { supabase } from '../lib/supabase'
 import CategoryPicker from '../components/CategoryPicker'
 import QuestionCard from '../components/QuestionCard'
 import Timer from '../components/Timer'
@@ -43,8 +43,6 @@ function QuizApp() {
     score,
   } = useQuiz()
 
-  const { saveScore } = useLeaderboard()
-
   const advanceTimer = useRef(null)
   const startTimeRef = useRef(null)
 
@@ -81,16 +79,15 @@ function QuizApp() {
   }
 
   async function handleSave(entry) {
-    const { error } = await saveScore({
-      userId:           null,
-      username:         entry.username,
-      score:            entry.score,
-      totalQuestions:   entry.total,
-      category:         entry.category,
-      difficulty:       entry.difficulty,
-      timeTakenSeconds: entry.timeTaken,
+    const { error } = await supabase.from('quiz_scores').insert({
+      username:           entry.username,
+      score:              entry.score,
+      total_questions:    entry.total,
+      category:           entry.category,
+      difficulty:         entry.difficulty,
+      time_taken_seconds: entry.timeTaken,
     })
-    if (error) throw new Error(error)
+    if (error) throw new Error(error.message)
   }
 
   function handleRestart() {
